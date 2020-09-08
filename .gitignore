@@ -1,4 +1,6 @@
-savedip.txt
+.DS_Store
 node_modules/
+keys/
+savedip.txt
+
 .eslintcache
-.env
