@@ -1,0 +1,22 @@
+{
+  "name": "@aborzoi/checkip",
+  "version": "1.0.0",
+  "description": "Check my computer's IP periodically and send an email if it changes",
+  "main": "checkip.js",
+  "bin": {
+    "@aborzoi/checkip": "bin/checkip.js",
+    "checkip": "bin/checkip.js"
+  },
+  "scripts": {
+    "start": "node bin/checkip.js"
+  },
+  "author": "Addie Barron",
+  "license": "ISC",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "twitter-lite": "^0.14.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.8.1"
+  }
+}
