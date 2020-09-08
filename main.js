@@ -1,72 +1,74 @@
 import { readFile, writeFile } from 'fs/promises';
 
+import getIP from 'public-ip'
+
 import {
-	config,
-	ipfile,
-	handle
+	twitterKeys as config,
+	savedIPLocation as ipfile,
+	twitterHandle as handle
 } from './config'
+
+import { log } from './util'
 
 // run
 
-import util from 'util'
-import cp from 'child_process'
-const exec = util.promisify(cp.exec);
-
 export async function run () {
-	
-
 	let currentIP, savedIP;
 
-	try {
-		currentIP = ( await exec(`wget -q -O - checkip.dyndns.com`) )
-			.stdout
-			.replace(/.+(IP Address: )([\d\.]+).+/, '$2')
-			.trim();
+	try { 
+		currentIP = await getIP.v4();
 
-	} catch (err) {
-		console.log(err)
-	}
+		try {
+			savedIP = await readSavedIP();
 
-	try {
-		savedIP = ( await readFile(ipfile, 'utf-8') ).trim()
+		} catch (err) {
+			log`No saved IP found. Saving current IP (${currentIP}) to ${ipfile}`;
 
-		if (savedIP !== currentIP) {
-			save(currentIP);
-			tweet(savedIP, currentIP);
-		} else {
-			console.log('IP Address has not changed.')
+			savedIP = await save(currentIP);
+
+		} finally { // tweet if there's a mismatch
+
+			if (savedIP !== currentIP) {
+				log`IP address has changed since last run. Notifying and updating saved IP...`;
+
+				Promise
+					.all([
+						save(currentIP),
+						tweet(savedIP, currentIP),
+					])
+					.then(a => log`Done!`)
+					.catch(console.error);
+			}
 		}
+
 	} catch (err) {
-
-		await writeFile(ipfile, currentIP, 'utf-8');
-
-		console.log(`No saved IP found. Saved current IP (${currentIP}) to ${ipfile}`);
+		log`Error getting public IP:`;
+		log`${err}`
 	}
 }
+// read saved ip
 
-// tweet if IP has changed
+async function readSavedIP () {
+	const data = await readFile(ipfile, 'utf-8');
+	return data.trim();
+}
+
+// save a given ip
+
+async function save (ip) {
+	await writeFile(ipfile, ip, 'utf-8');
+	return ip;
+}
+
+// tweet if ip has changed
 
 import Twitter from 'twitter-lite'
 
 async function tweet (oldIP, newIP) {
-	const twitter = new Twitter(config.twitter);
-	const tweetText = `our router's public ip address has changed from ${oldIP} to:
+	const twitter = new Twitter(config);
+	const tweetText = `our router's public ip address has changed from ${oldIP} to:\n\n${newIP}\n\ntime to update dns!`;
 
-${newIP}
-
-time to update dns!`;
-
-	try {
-		await twitter.post('statuses/update', {
-			status: tweetText,
-		});
-	} catch (err) {
-		console.log(err);
-	}
-}
-
-// replace saved IP with current one
-
-async function save (newIP) {
-	await writeFile(ipfile, newIP, 'utf-8');
+	return await twitter.post('statuses/update', {
+		status: tweetText,
+	});
 }

@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "esm": "^3.2.25",
+    "public-ip": "^4.0.2",
     "twitter-lite": "^0.14.0"
   },
   "devDependencies": {
