@@ -1,6 +1,7 @@
 .DS_Store
 node_modules/
 keys/
+logs/
 ip.txt
 
 .eslintcache

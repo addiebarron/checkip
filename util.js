@@ -1,15 +1,19 @@
 // custom template literal log function
 
-const log = (strings, ...vars) => {
-	console.log(
-		strings
-			.map( (v,i) => [v, vars[i]] )
-			.reduce( (a,b) => a.concat(b) )
-			.join('')
-	)
+import { promises as fs } from 'fs'
+import { resolve } from 'path'
+import { logLocation as logFile } from './config'
+
+export function pathify(name) {
+	return resolve(approot, name);
 }
 
+export function log (strings, ...vars) {
+	const timestamp = new Date().toLocaleString();
+	const text = strings
+				.map( (v,i) => [v, vars[i]] )
+				.reduce( (a,b) => a.concat(b) )
+				.join('')
 
-export {
-	log
+	console.log(`[${timestamp}] ${text}`);
 }

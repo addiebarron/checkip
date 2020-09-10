@@ -1,6 +1,13 @@
-import { readFile, writeFile } from 'fs/promises';
-
+import { 
+	promises as fs, 
+	createWriteStream 
+} from 'fs';
 import getIP from 'public-ip'
+
+import { 
+	log, 
+	pathify
+} from './util'
 
 import {
 	twitterKeys as config,
@@ -8,11 +15,39 @@ import {
 	twitterHandle as handle
 } from './config'
 
-import { log } from './util'
+// init
 
-// run
+export async function init(argv) {
 
-export async function run () {
+	// create necessary directories
+
+	await Promise.all(
+		['logs', 'keys',].map(
+			dir => fs.mkdir(dir, { recursive: true }) // recursive also stops errors if directories exist
+		)
+	)
+
+	// set console output to file if no verbose flag
+
+	if (!argv.includes('-v')) {
+		console.log('Logging to file');
+
+		const [ logStream, errStream ] = [
+			'log.out', 
+			'err.out'
+		].map(dir => createWriteStream(pathify(`logs/${dir}`)));
+
+		global.console = new console.Console(logStream, errStream);
+	}
+
+	// now run the rest of it!
+	
+	main();
+}
+
+// main 
+
+async function main () {
 	let currentIP, savedIP;
 
 	try { 
@@ -46,17 +81,18 @@ export async function run () {
 		log`${err}`
 	}
 }
+
 // read saved ip
 
 async function readSavedIP () {
-	const data = await readFile(ipfile, 'utf-8');
+	const data = await fs.readFile(ipfile, 'utf-8');
 	return data.trim();
 }
 
 // save a given ip
 
 async function save (ip) {
-	await writeFile(ipfile, ip, 'utf-8');
+	await fs.writeFile(ipfile, ip, 'utf-8');
 	return ip;
 }
 
