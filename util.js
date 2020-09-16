@@ -2,7 +2,6 @@
 
 import { promises as fs } from 'fs'
 import { resolve } from 'path'
-import { logLocation as logFile } from './config'
 
 export function pathify(name) {
 	return resolve(approot, name);

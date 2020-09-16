@@ -1,8 +1,10 @@
-const twitterKeys = require('./keys/twitter');
+import twitterKeys from './keys/twitter';
 
-module.exports = {
-	// use your own twitter keys here!
+const savedIPLocation = 'logs/ip.txt',
+	  twitterHandle = 'lengthypooch';
+
+export {
 	twitterKeys,
-	savedIPLocation: 'logs/ip.txt',
-	twitterHandle: 'lengthypooch',
+	savedIPLocation,
+	twitterHandle,
 }

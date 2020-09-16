@@ -1,7 +1,8 @@
 import { 
 	promises as fs, 
-	createWriteStream 
+	createWriteStream,
 } from 'fs';
+
 import getIP from 'public-ip'
 
 import { 
@@ -33,14 +34,14 @@ export async function init(argv) {
 
 	if (!argv.includes('-v')) {
 		const [ logStream, errStream ] = [
-			'log.out', 
-			'err.out'
-		].map(dir => createWriteStream(pathify(`logs/${dir}`)));
+			'log.out',
+			'err.out',
+		].map(dir => createWriteStream( pathify(`logs/${dir}`), { flags: 'a+'} ) );
 
 		global.console = new console.Console(logStream, errStream);
 	}
 
-	// now run the rest of it!
+	// now run the main check
 	
 	main();
 }
