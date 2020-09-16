@@ -11,9 +11,11 @@ import {
 
 import {
 	twitterKeys as config,
-	savedIPLocation as ipfile,
+	savedIPLocation,
 	twitterHandle as handle
 } from './config'
+
+const ipfile = pathify(savedIPLocation);
 
 // init
 
@@ -23,15 +25,13 @@ export async function init(argv) {
 
 	await Promise.all(
 		['logs', 'keys',].map(
-			dir => fs.mkdir(dir, { recursive: true }) // recursive also stops errors if directories exist
+			dir => fs.mkdir(pathify(dir), { recursive: true }) // recursive also stops errors if directories exist
 		)
 	)
 
 	// set console output to file if no verbose flag
 
 	if (!argv.includes('-v')) {
-		console.log('Logging to file');
-
 		const [ logStream, errStream ] = [
 			'log.out', 
 			'err.out'
@@ -73,6 +73,8 @@ async function main () {
 					])
 					.then(a => log`Done!`)
 					.catch(console.error);
+			} else {
+				log`No change.`
 			}
 		}
 

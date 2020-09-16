@@ -2,7 +2,6 @@
 
 require = require('esm')(module);
 
-const resolve = require('path').resolve;
-global.approot = resolve(__dirname, '../');
+global.approot = require('path').resolve(__dirname, '..');
 
 require('../main').init(process.argv);
